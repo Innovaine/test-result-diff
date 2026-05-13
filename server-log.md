@@ -184,3 +184,21 @@ STDOUT:
 ./week-02/_plan.md
 ./week-02/engineering.md
 ```
+
+## 2026-05-13T02:43:28.495Z — Amrit ran 2 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `73cba88` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✗ exit 1, 5386ms)
+```
+cd ~/test-result-diff && go build -o bin/test-result-diff ./cmd/test-result-diff/main.go && ls -lh bin/test-result-diff && file bin/test-result-diff
+```
+ERROR: command exited 1
+
+### Command 2 on app as engineer (✓ exit 0, 486ms)
+```
+cd ~/test-result-diff && ./bin/test-result-diff test/fixtures/baseline.xml test/fixtures/current.xml 2>&1 | head -50
+```
+STDOUT:
+```
+bash: line 1: ./bin/test-result-diff: No such file or directory
+```
