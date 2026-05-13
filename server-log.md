@@ -131,3 +131,56 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 ```
+
+## 2026-05-13T02:42:50.454Z — Amrit ran 2 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `f2bf148` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✓ exit 0, 2164ms)
+```
+cd ~/test-result-diff && git log --oneline -10 && echo "---" && find . -name "*.go" -type f | head -20
+```
+STDOUT:
+```
+fef1445 Round 2 of Engineering (week 2) — pre-SSH sync
+97d987a Round 1 of Engineering (week 2) — pre-SSH sync
+9ecf35a Round 1 of Engineering (week 2) — pre-SSH sync
+5e5d0a2 Round 1 of Engineering (week 2) — pre-SSH sync
+a27c1a4 Week 1 — Test Result Diff — Automated test output comparison for flaky test diagnosis
+ef8bdc9 Round 1 of Engineering (week 1) — pre-SSH sync
+f17f484 Manual sync from Qadar (14 files)
+677f23d Initialize repo (Qadar bootstrap)
+---
+./cmd/test-result-diff/main.go
+./internal/parser/parser.go
+./internal/differ/differ.go
+```
+
+### Command 2 on app as engineer (✓ exit 0, 470ms)
+```
+cd ~/test-result-diff && tree -L 2 -I '.git|vendor' 2>/dev/null || find . -maxdepth 2 -type f \( -name "*.go" -o -name "*.mod" -o -name "*.md" \) | sort
+```
+STDOUT:
+```
+./README.md
+./decisions/ceo-vikram.md
+./decisions/chairman-amara.md
+./decisions/manager-shortlist-naresh.md
+./execution/outreach-rajesh.md
+./execution/staffing-kenji.md
+./go.mod
+./idea.md
+./reviews/cfo-lucia.md
+./reviews/cto-hassan.md
+./reviews/devil-advocate-tom-s.md
+./reviews/engineer-amrit.md
+./reviews/engineer-priya.md
+./reviews/research-carla.md
+./server-log.md
+./week-01/_index.md
+./week-01/_plan.md
+./week-01/engineering.md
+./week-01/pm-status.md
+./week-01/review.md
+./week-02/_plan.md
+./week-02/engineering.md
+```

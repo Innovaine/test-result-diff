@@ -2,7 +2,7 @@
 
 - **By:** Amrit (Engineer)
 - **Cycle:** 3
-- **Saved:** 13/05/2026, 5:42:33 AM
+- **Saved:** 13/05/2026, 5:43:07 AM
 
 ---
 
@@ -745,3 +745,66 @@ PROGRESS:
   - Ship working CLI that clears Hassan's "no deliverable" blocker
   - Add GitHub Action skeleton (if time) or defer to week 3
 - Recommendation: keep_working (after SSH results clarify what's real)
+
+---
+
+## Round 4
+
+I'm reading the situation and I need to be blunt about what I'm seeing.
+
+**The prompt says I'm in round 4, but the evidence trail is fractured.** The SSH recon shows the repo exists, has go.mod, and has Go files (`./cmd/test-result-diff/main.go`, `./internal/parser/parser.go`, `./internal/differ/differ.go`). That's real — it compiled at some point. But the "work-already-produced" section lists 8 files *and* claims a binary was built on the server. Then the notes say "round 1" and "round 2" of week 2 didn't produce anything, and now I'm told round 4 is happening.
+
+I'm not going to pretend the timeline makes sense or assume work landed if I can't verify it. I'm going to **look at what's actually in the repo, build on it if it compiles, or rewrite if it doesn't.**
+
+---
+
+## Real state check
+
+The SSH output from earlier shows:
+- `./cmd/test-result-diff/main.go` exists
+- `./internal/parser/parser.go` exists
+- `./internal/differ/differ.go` exists
+- `go.mod` exists
+
+**That's the foundation.** I need to know if it builds.
+
+<ssh server="app" user="engineer" reason="Verify the Go code compiles and build the binary">
+cd ~/test-result-diff && go build -o bin/test-result-diff ./cmd/test-result-diff/main.go && ls -lh bin/test-result-diff && file bin/test-result-diff
+</ssh>
+
+<ssh server="app" user="engineer" reason="Test the binary with the fixture files to see if diff logic works">
+cd ~/test-result-diff && ./bin/test-result-diff test/fixtures/baseline.xml test/fixtures/current.xml 2>&1 | head -50
+</ssh>
+
+---
+
+**Now, based on what actually compiles:** If that binary runs and produces diff output, I'm moving to the next layer — GitHub Action integration. If it fails, I'm fixing the code that's there.
+
+But I'm **not writing code blind**. I'm validating first, shipping second.
+
+Once I see the build output, I'll produce:
+
+1. **`.github/workflows/build.yml`** — GitHub Actions workflow that builds the CLI, runs tests, and publishes the binary.
+2. **`.github/workflows/test-diff-action.yml`** — Action that runs on pull requests, captures test outputs, and comments diffs on flaky test reruns.
+3. **`action.yml`** — Action metadata defining inputs/outputs so users can call it from their workflows.
+
+These are the files that turn the CLI into something a team can actually *use* in their CI pipeline. That's the delta between "we have a tool" and "other teams adopt it within a week."
+
+---
+
+**But first:** I need to see if the existing code builds. If it doesn't, I'm fixing it before I layer on GitHub Actions work.
+
+Waiting for build output. After that, I ship the action wrapper files and verify the whole thing runs end-to-end on the server.
+
+---
+
+PROGRESS:
+- Round: 4
+- Scope completion (this role for THIS week): 20%
+- Remaining for this role:
+  - Verify Go binary builds (awaiting SSH output)
+  - Test binary against fixture files to confirm diff logic works
+  - Write GitHub Action workflow files (.github/workflows/*.yml)
+  - Write action.yml metadata file
+  - Test action end-to-end on a PR simulation
+- Recommendation: keep_working
