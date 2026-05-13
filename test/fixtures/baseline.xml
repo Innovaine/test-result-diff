@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="MyTestSuite" tests="3" failures="1" errors="0" skipped="0">
+  <testcase name="TestAddition" classname="MathTests" time="0.001">
+  </testcase>
+  <testcase name="TestDivisionByZero" classname="MathTests" time="0.002">
+    <failure message="expected 0, got infinity">AssertionError: expected 0 but got infinity in division handler</failure>
+  </testcase>
+  <testcase name="TestSubtraction" classname="MathTests" time="0.001">
+  </testcase>
+</testsuite>
