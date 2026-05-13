@@ -1,0 +1,63 @@
+name: Test Result Diff
+description: "Automatically comment on PRs with a structured diff of assertion output deltas for flaky test diagnosis"
+author: "Innovaine"
+
+inputs:
+  baseline-results:
+    description: "Path to the baseline test results XML file (previous successful run)"
+    required: true
+  current-results:
+    description: "Path to the current test results XML file (new run)"
+    required: true
+  github-token:
+    description: "GitHub token for posting comments (default: secrets.GITHUB_TOKEN)"
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  flaky-tests:
+    description: "JSON array of detected flaky tests"
+    value: ${{ steps.diff.outputs.flaky-tests }}
+  comment-id:
+    description: "GitHub comment ID if posted"
+    value: ${{ steps.comment.outputs.comment-id }}
+
+runs:
+  using: docker
+  image: docker://golang:1.21-alpine
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build binary
+      run: |
+        cd /github/workspace
+        go build -o /tmp/test-result-diff ./cmd/test-result-diff/
+
+    - name: Run diff
+      id: diff
+      run: |
+        /tmp/test-result-diff "${{ inputs.baseline-results }}" "${{ inputs.current-results }}" > /tmp/diff-output.txt 2>&1
+        cat /tmp/diff-output.txt
+
+    - name: Post comment (if flaky detected)
+      id: comment
+      uses: actions/github-script@v7
+      if: success()
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const diffOutput = fs.readFileSync('/tmp/diff-output.txt', 'utf8');
+          
+          if (diffOutput.includes('FLAKY')) {
+            const comment = await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## 🔍 Test Result Diff\n\n' + '```\n' + diffOutput + '\n```'
+            });
+            core.setOutput('comment-id', comment.data.id);
+          } else {
+            core.info('No flaky tests detected.');
+          }

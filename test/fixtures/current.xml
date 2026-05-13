@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="MyTestSuite" tests="3" failures="1" errors="0" skipped="0">
-  <testcase name="TestAddition" classname="MathTests" time="0.001">
-  </testcase>
-  <testcase name="TestDivisionByZero" classname="MathTests" time="0.002">
-    <failure message="expected 0, got NaN">AssertionError: expected 0 but got NaN in division handler with null input</failure>
-  </testcase>
-  <testcase name="TestSubtraction" classname="MathTests" time="0.001">
-  </testcase>
-</testsuite>
+<testsuites tests="3" failures="1" skipped="0">
+  <testsuite name="com.example.MyTest" tests="3" failures="1" skipped="0" time="0.125">
+    <testcase name="testAddition" classname="com.example.MyTest" time="0.001">
+    </testcase>
+    <testcase name="testDivisionByZero" classname="com.example.MyTest" time="0.002">
+      <failure message="Expected 0 but got NaN">
+java.lang.AssertionError: Expected 0 but got NaN
+	at com.example.MyTest.testDivisionByZero(MyTest.java:42)
+      </failure>
+    </testcase>
+    <testcase name="testStringConcat" classname="com.example.MyTest" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

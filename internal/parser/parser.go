@@ -1,119 +1,94 @@
 package parser
 
 import (
-	"bufio"
 	"encoding/xml"
-	"fmt"
-	"os"
-	"strings"
 )
 
-// ASSUMPTION: JUnit XML is the primary format (common in CI/CD).
-// Raw text format is a fallback for custom test runners.
-
-// TestResult represents a single test outcome.
-type TestResult struct {
-	Name      string // test name
-	Status    string // "pass", "fail", "error", "skipped"
-	Output    string // full test output / assertion message
-	Duration  float64
-	Classname string // test class/package
+// TestResults represents the root of a JUnit-style test output XML.
+type TestResults struct {
+	XMLName  xml.Name  `xml:"testsuites"`
+	Suites   []Suite   `xml:"testsuite"`
+	Tests    int       `xml:"tests,attr"`
+	Failures int       `xml:"failures,attr"`
+	Skipped  int       `xml:"skipped,attr"`
 }
 
-// JUnitTestSuite is minimal JUnit XML unmarshaling.
-type JUnitTestSuite struct {
-	XMLName string      `xml:"testsuite"`
-	Tests   []JUnitTest `xml:"testcase"`
+// Suite represents a single test suite.
+type Suite struct {
+	XMLName   xml.Name `xml:"testsuite"`
+	Name      string   `xml:"name,attr"`
+	Tests     int      `xml:"tests,attr"`
+	Failures  int      `xml:"failures,attr"`
+	Skipped   int      `xml:"skipped,attr"`
+	Time      string   `xml:"time,attr"`
+	TestCases []Case   `xml:"testcase"`
 }
 
-// JUnitTest represents a single JUnit testcase element.
-type JUnitTest struct {
-	Name      string `xml:"name,attr"`
-	Classname string `xml:"classname,attr"`
-	Time      string `xml:"time,attr"`
-	Failure   *struct {
-		Message string `xml:"message,attr"`
-		Text    string `xml:",chardata"`
-	} `xml:"failure"`
-	Error *struct {
-		Message string `xml:"message,attr"`
-		Text    string `xml:",chardata"`
-	} `xml:"error"`
-	Skipped *struct {
-		Message string `xml:"message,attr"`
-	} `xml:"skipped"`
+// Case represents a single test case.
+type Case struct {
+	XMLName     xml.Name `xml:"testcase"`
+	Name        string   `xml:"name,attr"`
+	ClassName   string   `xml:"classname,attr"`
+	Time        string   `xml:"time,attr"`
+	Status      string   // Computed: "pass", "fail", "skip"
+	Failure     *Failure `xml:"failure"`
+	Skipped     *Skipped `xml:"skipped"`
+	AssertError string   // Raw assertion/error output
 }
 
-// ParseJUnitXML reads a JUnit XML file and returns TestResult slice.
-func ParseJUnitXML(path string) ([]TestResult, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("read file: %w", err)
-	}
-
-	var suite JUnitTestSuite
-	if err := xml.Unmarshal(data, &suite); err != nil {
-		return nil, fmt.Errorf("unmarshal XML: %w", err)
-	}
-
-	var results []TestResult
-	for _, t := range suite.Tests {
-		tr := TestResult{
-			Name:      t.Name,
-			Classname: t.Classname,
-		}
-
-		if t.Failure != nil {
-			tr.Status = "fail"
-			tr.Output = t.Failure.Message + "\n" + t.Failure.Text
-		} else if t.Error != nil {
-			tr.Status = "error"
-			tr.Output = t.Error.Message + "\n" + t.Error.Text
-		} else if t.Skipped != nil {
-			tr.Status = "skipped"
-			tr.Output = t.Skipped.Message
-		} else {
-			tr.Status = "pass"
-			tr.Output = ""
-		}
-
-		results = append(results, tr)
-	}
-
-	return results, nil
+// Failure represents a test failure.
+type Failure struct {
+	XMLName xml.Name `xml:"failure"`
+	Message string   `xml:"message,attr"`
+	Text    string   `xml:",chardata"`
 }
 
-// ParseRawText parses a simple text format: "TESTNAME:STATUS:OUTPUT".
-// ASSUMPTION: simple fallback for custom test runners. Not production-grade.
-func ParseRawText(path string) ([]TestResult, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("open file: %w", err)
+// Skipped represents a skipped test.
+type Skipped struct {
+	XMLName xml.Name `xml:"skipped"`
+	Message string   `xml:"message,attr"`
+}
+
+// Normalize normalizes the parsed results: computes test status for each case.
+func (tr *TestResults) Normalize() {
+	for i := range tr.Suites {
+		for j := range tr.Suites[i].TestCases {
+			case_ := &tr.Suites[i].TestCases[j]
+			if case_.Failure != nil {
+				case_.Status = "fail"
+				case_.AssertError = case_.Failure.Text
+			} else if case_.Skipped != nil {
+				case_.Status = "skip"
+			} else {
+				case_.Status = "pass"
+			}
+		}
 	}
-	defer file.Close()
+}
 
-	var results []TestResult
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
+// GetTestByID returns a test case by its fully qualified name (ClassName.Name).
+func (tr *TestResults) GetTestByID(id string) *Case {
+	for i := range tr.Suites {
+		for j := range tr.Suites[i].TestCases {
+			case_ := &tr.Suites[i].TestCases[j]
+			fqn := case_.ClassName + "." + case_.Name
+			if fqn == id {
+				return case_
+			}
 		}
-
-		parts := strings.SplitN(line, ":", 3)
-		if len(parts) < 2 {
-			continue
-		}
-
-		tr := TestResult{
-			Name:   parts[0],
-			Status: parts[1],
-		}
-		if len(parts) > 2 {
-			tr.Output = parts[2]
-		}
-		results = append(results, tr)
 	}
+	return nil
+}
 
-	return results, scanner.Err()
+// AllTestIDs returns a set of all test case FQNs in the result.
+func (tr *TestResults) AllTestIDs() map[string]bool {
+	ids := make(map[string]bool)
+	for i := range tr.Suites {
+		for j := range tr.Suites[i].TestCases {
+			case_ := &tr.Suites[i].TestCases[j]
+			fqn := case_.ClassName + "." + case_.Name
+			ids[fqn] = true
+		}
+	}
+	return ids
 }

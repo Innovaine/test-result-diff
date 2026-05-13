@@ -246,3 +246,41 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 ```
+
+## 2026-05-13T02:45:20.240Z — Amrit ran 2 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `c5e6757` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✓ exit 0, 2519ms)
+```
+cd ~/test-result-diff && echo "=== Checking cmd/test-result-diff/main.go ===" && wc -l cmd/test-result-diff/main.go 2>&1 && echo "=== Checking internal files ===" && ls -la internal/parser/ internal/differ/ 2>&1 && echo "=== Try to build ===" && go build -v -o bin/test-result-diff ./cmd/test-result-diff/ 2>&1 | tail -30
+```
+STDOUT:
+```
+=== Checking cmd/test-result-diff/main.go ===
+92 cmd/test-result-diff/main.go
+=== Checking internal files ===
+internal/differ/:
+total 12
+drwxrwxr-x 2 engineer engineer 4096 May 13 02:42 .
+drwxrwxr-x 4 engineer engineer 4096 May 13 02:42 ..
+-rw-rw-r-- 1 engineer engineer 3573 May 13 02:42 differ.go
+
+internal/parser/:
+total 12
+drwxrwxr-x 2 engineer engineer 4096 May 13 02:42 .
+drwxrwxr-x 4 engineer engineer 4096 May 13 02:42 ..
+-rw-rw-r-- 1 engineer engineer 2801 May 13 02:42 parser.go
+=== Try to build ===
+github.com/Innovaine/test-result-diff/cmd/test-result-diff
+# github.com/Innovaine/test-result-diff/cmd/test-result-diff
+cmd/test-result-diff/main.go:7:2: "path/filepath" imported and not used
+```
+
+### Command 2 on app as engineer (✓ exit 0, 456ms)
+```
+cd ~/test-result-diff && [ -f bin/test-result-diff ] && ./bin/test-result-diff test/fixtures/baseline.xml test/fixtures/current.xml 2>&1 || echo "Binary not built yet"
+```
+STDOUT:
+```
+Binary not built yet
+```

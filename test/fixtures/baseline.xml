@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="MyTestSuite" tests="3" failures="1" errors="0" skipped="0">
-  <testcase name="TestAddition" classname="MathTests" time="0.001">
-  </testcase>
-  <testcase name="TestDivisionByZero" classname="MathTests" time="0.002">
-    <failure message="expected 0, got infinity">AssertionError: expected 0 but got infinity in division handler</failure>
-  </testcase>
-  <testcase name="TestSubtraction" classname="MathTests" time="0.001">
-  </testcase>
-</testsuite>
+<testsuites tests="3" failures="0" skipped="0">
+  <testsuite name="com.example.MyTest" tests="3" failures="0" skipped="0" time="0.123">
+    <testcase name="testAddition" classname="com.example.MyTest" time="0.001">
+    </testcase>
+    <testcase name="testDivisionByZero" classname="com.example.MyTest" time="0.002">
+    </testcase>
+    <testcase name="testStringConcat" classname="com.example.MyTest" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>
