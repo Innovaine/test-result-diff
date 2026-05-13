@@ -58,3 +58,24 @@ ERROR: command exited 1
 ls -lh ~/test-result-diff-clone/bin/test-result-diff && file ~/test-result-diff-clone/bin/test-result-diff
 ```
 ERROR: command exited 2
+
+## 2026-05-13T02:41:33.318Z — Amrit ran 3 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `97d987a` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✗ exit 128, 2188ms)
+```
+cd ~ && git clone https://github.com/Innovaine/test-result-diff.git test-result-diff-clone && cd test-result-diff-clone && git pull
+```
+ERROR: command exited 128
+
+### Command 2 on app as engineer (✗ exit 1, 492ms)
+```
+cd ~/test-result-diff-clone && go mod download && go build -o bin/test-result-diff ./cmd/test-result-diff && ./bin/test-result-diff -baseline test/fixtures/baseline.xml -current test/fixtures/current.xml -format junit -v
+```
+ERROR: command exited 1
+
+### Command 3 on app as engineer (✗ exit 2, 472ms)
+```
+ls -lh ~/test-result-diff-clone/bin/test-result-diff && file ~/test-result-diff-clone/bin/test-result-diff
+```
+ERROR: command exited 2
