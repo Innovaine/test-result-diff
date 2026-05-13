@@ -79,3 +79,55 @@ ERROR: command exited 1
 ls -lh ~/test-result-diff-clone/bin/test-result-diff && file ~/test-result-diff-clone/bin/test-result-diff
 ```
 ERROR: command exited 2
+
+## 2026-05-13T02:42:14.496Z — Amrit ran 2 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `fef1445` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✓ exit 0, 2456ms)
+```
+cd ~/test-result-diff 2>/dev/null && pwd && git remote -v && ls -la && git log --oneline -5 || echo "Repo not found or not initialized"
+```
+STDOUT:
+```
+Repo not found or not initialized
+```
+
+### Command 2 on app as engineer (✓ exit 0, 928ms)
+```
+cd ~ && rm -rf test-result-diff && git clone https://github.com/Innovaine/test-result-diff.git && cd test-result-diff && ls -la && cat go.mod 2>/dev/null || echo "No go.mod found"
+```
+STDOUT:
+```
+total 68
+drwxrwxr-x 11 engineer engineer 4096 May 13 02:42 .
+drwxr-x--- 11 engineer engineer 4096 May 13 02:42 ..
+drwxrwxr-x  8 engineer engineer 4096 May 13 02:42 .git
+-rw-rw-r--  1 engineer engineer  450 May 13 02:42 README.md
+-rw-rw-r--  1 engineer engineer 1343 May 13 02:42 _meta.json
+drwxrwxr-x  3 engineer engineer 4096 May 13 02:42 cmd
+drwxrwxr-x  2 engineer engineer 4096 May 13 02:42 decisions
+drwxrwxr-x  2 engineer engineer 4096 May 13 02:42 execution
+-rw-rw-r--  1 engineer engineer  294 May 13 02:42 go.mod
+-rw-rw-r--  1 engineer engineer  826 May 13 02:42 go.sum
+-rw-rw-r--  1 engineer engineer 1122 May 13 02:42 idea.md
+drwxrwxr-x  4 engineer engineer 4096 May 13 02:42 internal
+drwxrwxr-x  2 engineer engineer 4096 May 13 02:42 reviews
+-rw-rw-r--  1 engineer engineer 3098 May 13 02:42 server-log.md
+drwxrwxr-x  3 engineer engineer 4096 May 13 02:42 test
+drwxrwxr-x  3 engineer engineer 4096 May 13 02:42 week-01
+drwxrwxr-x  2 engineer engineer 4096 May 13 02:42 week-02
+module github.com/Innovaine/test-result-diff
+
+go 1.21
+
+require (
+	github.com/stretchr/testify v1.8.4
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+)
+```
