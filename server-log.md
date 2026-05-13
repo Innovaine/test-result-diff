@@ -299,3 +299,82 @@ ERROR: command exited 1
 cd ~/test-result-diff && go build -o bin/test-result-diff ./cmd/test-result-diff/ && echo "=== Build OK ===" && ./bin/test-result-diff test/fixtures/baseline.xml test/fixtures/current.xml
 ```
 ERROR: command exited 1
+
+## 2026-05-13T02:47:37.187Z — Amrit ran 1 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `8e923a3` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✓ exit 0, 2451ms)
+```
+cd ~/test-result-diff && git status && echo "=== go.mod ===" && cat go.mod && echo "=== cmd/test-result-diff/main.go (first 50 lines) ===" && head -50 cmd/test-result-diff/main.go
+```
+STDOUT:
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+=== go.mod ===
+module github.com/Innovaine/test-result-diff
+
+go 1.21
+
+require (
+	github.com/stretchr/testify v1.8.4
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+)=== cmd/test-result-diff/main.go (first 50 lines) ===
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/Innovaine/test-result-diff/internal/differ"
+	"github.com/Innovaine/test-result-diff/internal/parser"
+)
+
+func main() {
+	// ASSUMPTION: week 2 accepts file path arguments on CLI, not stdin. Simpler to test.
+	baselinePath := flag.String("baseline", "", "Path to baseline test output file")
+	currentPath := flag.String("current", "", "Path to current test output file")
+	format := flag.String("format", "junit", "Test output format (junit, raw)")
+	verbose := flag.Bool("v", false, "Verbose diff output")
+
+	flag.Parse()
+
+	if *baselinePath == "" || *currentPath == "" {
+		fmt.Fprintf(os.Stderr, "Usage: test-result-diff -baseline <file> -current <file> [-format junit|raw] [-v]\n")
+		os.Exit(1)
+	}
+
+	// Validate files exist.
+	if _, err := os.Stat(*baselinePath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: baseline file not found: %s\n", *baselinePath)
+		os.Exit(1)
+	}
+	if _, err := os.Stat(*currentPath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: current file not found: %s\n", *currentPath)
+		os.Exit(1)
+	}
+
+	// Parse both outputs.
+	var baselineTests, currentTests []parser.TestResult
+	var parseErr error
+
+	switch *format {
+	case "junit":
+		baselineTests, parseErr = parser.ParseJUnitXML(*baselinePath)
+	case "raw":
+		baselineTests, parseErr = parser.ParseRawText(*baselinePath)
+	default:
+		fmt.Fprintf(os.Stderr, "Error: unknown format %s\n", *format)
+		os.Exit(1)
+	}
+```
