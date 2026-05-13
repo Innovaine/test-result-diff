@@ -284,3 +284,18 @@ STDOUT:
 ```
 Binary not built yet
 ```
+
+## 2026-05-13T02:46:23.751Z — Amrit ran 2 command(s)
+_Pre-SSH: warehouse pushed to GitHub as commit `38cbe86` so the server's `git pull` will pick it up._
+
+### Command 1 on app as engineer (✗ exit 1, 2483ms)
+```
+cd ~/test-result-diff && go build -o bin/test-result-diff ./cmd/test-result-diff/ && echo "=== Binary built ===" && ./bin/test-result-diff test/fixtures/baseline.xml test/fixtures/current.xml 2>&1
+```
+ERROR: command exited 1
+
+### Command 2 on app as engineer (✗ exit 1, 534ms)
+```
+cd ~/test-result-diff && go build -o bin/test-result-diff ./cmd/test-result-diff/ && echo "=== Build OK ===" && ./bin/test-result-diff test/fixtures/baseline.xml test/fixtures/current.xml
+```
+ERROR: command exited 1
